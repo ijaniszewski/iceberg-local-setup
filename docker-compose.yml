@@ -5,9 +5,9 @@ services:
     ports:
       - 8181:8181
     environment:
-      - AWS_ACCESS_KEY_ID=admin
-      - AWS_SECRET_ACCESS_KEY=password
-      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
       - CATALOG_WAREHOUSE=s3://warehouse/
       - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
       - CATALOG_S3_ENDPOINT=http://minio:9000
@@ -18,8 +18,8 @@ services:
     image: minio/minio:RELEASE.2025-05-24T17-08-30Z
     container_name: minio
     environment:
-      - MINIO_ROOT_USER=admin
-      - MINIO_ROOT_PASSWORD=password
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
       - MINIO_DOMAIN=minio
     ports:
       - 9000:9000
@@ -37,7 +37,7 @@ services:
     container_name: mc
     entrypoint: |
       /bin/sh -c "
-        until (/usr/bin/mc config host add minio http://minio:9000 admin password)
+        until (/usr/bin/mc config host add minio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD})
         do
           echo '...waiting...' && sleep 1;
         done;
@@ -47,9 +47,9 @@ services:
         tail -f /dev/null
       "
     environment:
-      - AWS_ACCESS_KEY_ID=admin
-      - AWS_SECRET_ACCESS_KEY=password
-      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
     networks:
       - iceberg-net
 
@@ -67,9 +67,9 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - AWS_ACCESS_KEY_ID=admin
-      - AWS_SECRET_ACCESS_KEY=password
-      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
     networks:
       - iceberg-net
 
