@@ -25,7 +25,13 @@ git clone https://github.com/ijaniszewski/iceberg-local-setup
 cd iceberg-local-setup
 ```
 
-### 2. Start the services
+### 2. Copy .env.example
+
+```bash
+cp .env.example .env
+```
+
+### 3. Start the services
 
 ```bash
 docker-compose up --build
@@ -84,7 +90,9 @@ Do not use them in production environments. Always manage secrets securely using
 │   └── Dockerfile
 ├── notebooks/
 │   └── intro-to-iceberg.ipynb
+├── .env
 └── README.md
+
 ```
 
 ---

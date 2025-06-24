@@ -1,10 +1,12 @@
 FROM python:3.11-slim
 
+# Install dependencies
 RUN pip install --no-cache-dir \
-    pyiceberg[nessie,aws,duckdb] \
+    pandas \
+    pyarrow \
     jupyterlab \
     boto3 \
-    pyarrow
+    pyiceberg[nessie,aws,duckdb]
 
 WORKDIR /notebooks
 
