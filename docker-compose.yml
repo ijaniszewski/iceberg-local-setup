@@ -55,8 +55,8 @@ services:
 
   pyiceberg:
     build:
-      context: ./pyiceberg
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.pyiceberg
     container_name: pyiceberg
     volumes:
       - ./notebooks:/notebooks

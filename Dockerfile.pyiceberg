@@ -1,0 +1,33 @@
+FROM python:3.11-slim
+
+# Install Flink dependencies
+RUN apt-get update && \
+    apt-get install -y curl unzip default-jre && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Flink
+ENV FLINK_VERSION=1.17.1
+RUN curl -L -o flink.tgz https://archive.apache.org/dist/flink/flink-$FLINK_VERSION/flink-$FLINK_VERSION-bin-scala_2.12.tgz && \
+    tar -xzf flink.tgz && \
+    mv flink-$FLINK_VERSION /opt/flink && \
+    rm flink.tgz
+
+# Python deps
+RUN pip install --no-cache-dir \
+    pandas \
+    pyarrow \
+    jupyterlab \
+    boto3 \
+    pyiceberg[nessie,aws,duckdb]
+
+WORKDIR /notebooks
+
+# Disable token for dev
+RUN mkdir -p /root/.jupyter && \
+    echo "c.ServerApp.token = ''" >> /root/.jupyter/jupyter_server_config.py && \
+    echo "c.ServerApp.password = ''" >> /root/.jupyter/jupyter_server_config.py && \
+    echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py
+
+EXPOSE 8888
+
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser"]
