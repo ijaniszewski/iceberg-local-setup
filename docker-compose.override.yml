@@ -1,0 +1,55 @@
+services:
+  starrocks-fe:
+    image: starrocks/fe-ubuntu:3.3.5
+    hostname: starrocks-fe
+    container_name: starrocks-fe
+    user: root
+    command: |
+      bash /opt/starrocks/fe/bin/start_fe.sh --host_type FQDN
+    ports:
+      - 8030:8030  # Web UI
+      - 9020:9020  # RPC communication
+      - 9030:9030  # MySQL protocol (used for SQL queries)
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+    networks:
+      - iceberg-net
+    healthcheck:
+      test: 'mysql -u root -h starrocks-fe -P 9030 -e "SHOW FRONTENDS\G" |grep "Alive: true"'
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  starrocks-be:
+    image: starrocks/be-ubuntu:3.3.5
+    container_name: starrocks-be
+    hostname: starrocks-be
+    user: root
+    command:
+      - /bin/bash
+      - -c
+      - |
+        ulimit -n 65535
+        echo "# Enable data cache" >> /opt/starrocks/be/conf/be.conf
+        echo "block_cache_enable = true" >> /opt/starrocks/be/conf/be.conf
+        echo "block_cache_mem_size = 536870912" >> /opt/starrocks/be/conf/be.conf
+        echo "block_cache_disk_size = 1073741824" >> /opt/starrocks/be/conf/be.conf
+        sleep 15s
+        mysql --connect-timeout 2 -h starrocks-fe -P 9030 -u root -e "ALTER SYSTEM ADD BACKEND \"starrocks-be:9050\";"
+        bash /opt/starrocks/be/bin/start_be.sh
+    ports:
+      - 8040:8040
+    environment:
+      - HOST_TYPE=FQDN
+    depends_on:
+      starrocks-fe:
+        condition: service_healthy
+    networks:
+      - iceberg-net
+    healthcheck:
+      test: 'mysql -u root -h starrocks-fe -P 9030 -e "SHOW BACKENDS\G" |grep "Alive: true"'
+      interval: 10s
+      timeout: 5s
+      retries: 3
