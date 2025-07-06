@@ -15,8 +15,7 @@ RUN pip install --no-cache-dir \
     jupyterlab \
     boto3 \
     pyiceberg[aws] \
-    mysql-connector-python \
-    s3fs
+    mysql-connector-python
 
 WORKDIR /notebooks
 
